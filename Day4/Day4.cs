@@ -21,65 +21,56 @@ namespace Advent_of_Code_2021.Puzzles
             Boards = Enumerable.Range(0, (lines.Length - 1) / 6).Select((b, i) =>
                 lines.Skip(i * 6 + 2)
                      .Take(5)
-                     .Select(l =>
-                        l.Split(' ')
-                         .Where(il => !String.IsNullOrWhiteSpace(il))
+                     .Select(s =>
+                        s.Split(' ')
+                         .Where(l => !String.IsNullOrWhiteSpace(l))
                          .Select(n => Int32.Parse(n))
                          .ToArray()
                      ).ToArray()
             ).ToArray();
         }
 
-        public void Part1()
+        public void Part1And2()
         {
-            for(int i = 1; i <= Sequence.Length; i++)
-            {
-                var sequence = Sequence.Take(i).ToArray();
-
-                var winningBoard = Boards.SingleOrDefault(b => IsWinner(b, sequence) || IsWinner(VerticalBoard(b), sequence));
-
-                if(winningBoard != null) 
-                {
-                    Console.WriteLine("Final score of first winning board: " + SumUnmarked(winningBoard, sequence) * sequence.Last());
-                    break;
-                }
-            }                    
-        }
-
-        public void Part2()
-        {
-            var (indexes, lastWinningSequence) = (new List<int>(), new int[Sequence.Length]);
+            var winningIndexes = new List<int>();
+            int[] firstSequence, lastSequence = firstSequence = null;
 
             for (int i = 1; i <= Sequence.Length; i++)
             {
                 var sequence = Sequence.Take(i).ToArray();
 
-                var winningBoards = Boards.Where((b, bi) => !indexes.Contains(bi) && (IsWinner(b, sequence) || IsWinner(VerticalBoard(b), sequence)))
-                                          .Select(b => Boards.ToList().IndexOf(b));
+                var indexes = Boards.Where((b, bi) => !winningIndexes.Contains(bi) && (IsWinner(b, sequence) || IsWinner(VerticalBoard(b), sequence)))
+                                          .Select(b => Array.IndexOf(Boards, b));
 
-                if (winningBoards.Count() > 0)
+                if (indexes.Count() > 0)
                 {
-                    indexes.AddRange(winningBoards);
-                    lastWinningSequence = sequence;
+                    firstSequence = firstSequence ?? sequence;
+                    lastSequence = sequence;
+                    winningIndexes.AddRange(indexes);                    
                 }                    
             }
 
-            Console.WriteLine("Final score of last winning board: " + SumUnmarked(Boards[indexes.Last()], lastWinningSequence) * lastWinningSequence.Last());
+            Console.WriteLine("Final score of first winning board: " + FinalScore(winningIndexes.First(), firstSequence));
+            Console.WriteLine("Final score of last winning board: " + FinalScore(winningIndexes.Last(), lastSequence));
         }
 
         public int[][] VerticalBoard(int[][] board)
         {
             return Enumerable.Range(0, 5).Select(r => Enumerable.Range(0, 5).Select(l => board[l][r]).ToArray()).ToArray();
-        }
+        }        
 
+        public bool IsWinner(int[][] board, int[] sequence)
+        {
+            return board.Any(l => l.All(n => sequence.Contains(n)));
+        }
         public int SumUnmarked(int[][] board, int[] sequence)
         {
             return board.Select(l => l.Where(n => !sequence.Contains(n)).Sum()).Sum();
         }
 
-        public bool IsWinner(int[][] board, int[] sequence)
+        public int FinalScore(int index, int[] sequence)
         {
-            return board.Any(l => l.All(n => sequence.Contains(n)));
+            return SumUnmarked(Boards[index], sequence) * sequence.Last();
         }
 
     }
