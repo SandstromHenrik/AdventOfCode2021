@@ -48,7 +48,7 @@ namespace Advent_of_Code_2021.Puzzles
             // Get most common bit / bool for the current binary position
             var bit = diagnostics.Where(d => d[i]).Count() >= (diagnostics.Length / 2);
 
-            // Get binaries that match the current criteria (most or least common of pos i)
+            // Get binaries that match the current criteria (most or least common bit of pos i)
             diagnostics = diagnostics.Where(d => d[i] == (mostCommon ? bit : !bit)).ToArray();
 
             return diagnostics.Length > 1 ? GetDiagnostics(diagnostics, mostCommon, i + 1) : diagnostics;
