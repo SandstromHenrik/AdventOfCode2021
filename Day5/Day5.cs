@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Advent_of_Code_2021.Puzzles
@@ -22,27 +23,23 @@ namespace Advent_of_Code_2021.Puzzles
         public Day5()
         {
             Lines = File.ReadAllLines("Puzzles/Day5/input.txt")
-                        .Select(s => 
-                            s.Split(new string[] { " -> " }, StringSplitOptions.None)
-                             .Select(l => l.Split(',').Select(c => Int32.Parse(c)).ToArray())
-                             .ToArray()
-                        )
+                        .Select(s => Regex.Split(s, @"\D+").Select(c => Int32.Parse(c)).ToArray())
                         .ToArray()
-                        .Select(l => new Lines() { X1 = l[0][0], Y1 = l[0][1], X2 = l[1][0], Y2 = l[1][1] })
+                        .Select(l => new Lines() { X1 = l[0], Y1 = l[1], X2 = l[2], Y2 = l[3] })
                         .ToArray();
         }
 
         public void Part1And2()
         {
-            var countNonDiagonal = CordsWithMultiOL(GetAllCoordinates(false));
-            var countWithDiagonal = CordsWithMultiOL(GetAllCoordinates(true));
+            var countNonDiagonal = CoordsWithMultiOL(GetAllCoords(false));
+            var countWithDiagonal = CoordsWithMultiOL(GetAllCoords(true));
 
             Console.WriteLine("At how many points do at least two lines overlap (non-diagonal)? - " + countNonDiagonal);
             Console.WriteLine("At how many points do at least two lines overlap (with diagonal)? - " + countWithDiagonal);
         }
 
 
-        public IEnumerable<string> GetAllCoordinates(bool withDiagonal)
+        public IEnumerable<string> GetAllCoords(bool withDiagonal)
         {
             var (verticalM, horizontalM) = (1, 1); // Modifiers
 
@@ -66,7 +63,7 @@ namespace Advent_of_Code_2021.Puzzles
             });
         }
 
-        public int CordsWithMultiOL(IEnumerable<string> coordinates)
+        public int CoordsWithMultiOL(IEnumerable<string> coordinates)
         {
             return coordinates.GroupBy(c => c).Where(c => c.Count() >= 2).Count();
         }
