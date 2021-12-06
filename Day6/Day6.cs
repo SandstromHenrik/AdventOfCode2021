@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Advent_of_Code_2021.Puzzles
 { 
     public class Day6
     {
-        private long[] TimerCount = new long[9];
+        private long[] DayCount = new long[10];
 
         public Day6()
         {
@@ -19,25 +15,19 @@ namespace Advent_of_Code_2021.Puzzles
                 .Split(',')
                 .ToList()
                 .ForEach(t => {
-                    TimerCount[Int32.Parse(t)]++;
+                    DayCount[Int32.Parse(t)+1]++;
                 });
         }
 
-        public void Part1And2(int days)
+        public void Part1And2(int days, long ph = 0)
         {
-            for(int d = 0; d < days; d++)
-            {
-                long newCount = TimerCount[0];
+            RangeAction(0, days, d => { 
+                RangeAction(0, DayCount.Length, t => ph = t < DayCount.Length-1 ? (DayCount[t] = DayCount[t+1]) : (DayCount[7] += DayCount[9] = DayCount[0]));
+            });
 
-                for(int t = 1; t < TimerCount.Length; t++)
-                    TimerCount[t-1] = TimerCount[t];
-
-                TimerCount[6] += TimerCount[8] = newCount;
-            }
-
-            Console.WriteLine($"How many lanternfish would there be after {days} days? - " + TimerCount.Sum());
+            Console.WriteLine($"How many lanternfish would there be after {days} days? - " + DayCount.Skip(1).Sum());
         }
 
-
+        public void RangeAction(int s, int l, Action<int> a) => Enumerable.Range(s, l).ToList().ForEach(a);
     }
 }
